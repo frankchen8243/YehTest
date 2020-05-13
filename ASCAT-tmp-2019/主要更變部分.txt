@@ -1,6 +1,0 @@
-因不確定直接讀取".nc.gz.nc"是否可行
-需要把原檔名中的附檔名"ascat_xxxxxxxx_xxxxxx_metopa_xxxxx_eps_o_xxx_xxx_ovw.l2.nc.gz.nc"
-改為"ascat_xxxxxxxx_xxxxxx_metopa_xxxxx_eps_o_xxx_xxx_ovw.l2.nc"
-
-
-
