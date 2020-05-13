@@ -1,0 +1,149 @@
+啟動 Windows XP 命令直譯器新例項
+
+CMD [/A | /U] [/Q] [/D] [/E:ON | /E:OFF] [/F:ON | /F:OFF] [/V:ON | /V:OFF]
+    [[/S] [/C | /K] string]
+
+/C      執行字串中所描述的命令然後結束命令視窗
+/K      執行 字串中所描述的命令然後保留命令視窗
+/S      修改字串在 /C 或 /K (參看下方)
+/Q      關閉 echo
+/D      從登錄中停用 AutoRun 命令(參看下方)
+/A      將內部命令輸出結果以 ANSI 格式導向 pipe 或檔案
+/U      將內部命令輸出結果以 Unicode 格式導向 pipe 或檔案
+/T:fg   設定幕前/幕後色彩 (參看 COLOR /?)
+/E:ON   啟用命令延伸 (參看下方)
+/E:OFF  停用命令延伸 (參看下方)
+/F:ON   啟用檔案及目錄名稱完整字元(參看下方)
+/F:OFF  停用檔案及目錄名稱完整字元(參看下方)
+/V:ON   啟用延遲環境變數延伸，用 c 作為分隔字元。例如，
+        /V:ON 可以讓 !var! 在執行時展開變數 var。文法
+        var 則會在輸入時展開變數，這在 FOR 迴圈之中是
+        完全不同的事。
+/V:OFF  停用延遲環境變數展開
+
+請注意用命令分隔字元 '&&' 隔開的多個命令如果被引號包含時則會被
+當成字串來接受。此外，為了相容性的原因，/X 的作用與 /E:ON 相同;
+/Y 與 /E:OFF 相同且 /R 與 /C 相同。其餘的參數則會被忽略。
+
+如果指定了/C 或 /K，則在參數後的其餘命令列會被當成命令列來處理，
+其中使用下面的邏輯來處理引號字元 (") :
+
+    1.  如果所有下列條件都符合，那麼命令列上的引號會被保留:
+
+        - 沒有 /S 參數
+        - 正好有兩個引號
+        - 在兩個引號之間沒有下列特殊字元: &<>()@^|
+        - 兩個引號之間有一些空格
+        - 在兩個引號之間的字串是執行檔的檔案名稱。
+
+    2.  否則，舊的行為是如果第一個字元是引號，會把前置字元
+        去掉，並將命令列中第一個引號及最後一個引號之間的所有
+        文字便成保留文字。
+
+如果您在命令列中未指定 /D，當 CMD.EXE 起動後，
+它會尋找下列 REG_SZ/REG_EXPAND_SZ的 登錄變數。如果
+有一個存在或兩個都存在，命令會執行第一個變數。
+
+HKEY_LOCAL_MACHINE\Software\Microsoft\CommandProcessor\AutoRun
+
+及/或
+
+HKEY_CURRENT_USER\Software\Microsoft\CommandProcessor\AutoRun
+
+將命令擴充功能預設成啟用狀態。您可以在特定的
+呼叫中，用 /E:OFF 參數來停用擴充功能。
+您可以啟用或停用一台電腦上或使用者登入工作階段中所有
+CMD.EXE 呼叫的擴充功能，如果您要這樣作，
+請使用 REGEDT32.EXE 來設定以下的 REG_DWORD 值:
+
+    HKEY_LOCAL_MACHINE\Software\Microsoft\Command Processor\EnableExtensions
+
+        及/或
+
+    HKEY_CURRENT_USER\Software\Microsoft\Command Processor\EnableExtensions
+
+到 0x1 或 0x0。使用者指定設定的執行優先順序高於電腦上
+的設定。命令列參數的執行優先順序高於登錄中的設定值。
+
+
+擴充命令包括下列命令的變更及(或)
+新增:
+
+    DEL or ERASE
+    COLOR
+    CD or CHDIR
+    MD or MKDIR
+    PROMPT
+    PUSHD
+    POPD
+    SET
+    SETLOCAL
+    ENDLOCAL
+    IF
+    FOR
+    CALL
+    SHIFT
+    GOTO
+    START (也包括援用外部命令之變更)
+    ASSOC
+    FTYPE
+
+請鍵入 HELP 命令名稱，以查閱說明。
+
+預設狀態下，不會啟用延遲環境變數擴充。您可以
+使用 /V:ON 或 /V:OFF 參數在執行 CMD.EXE 時啟用
+或停用完整檔案名稱。您也可以用 REGEDT32.EXE 來
+修改以下 REG_DWORD 值，來啟用或停用整個電腦上或
+使用者登入工作階段中所有 CMD.EXE 的檔案名稱完整功能:
+
+    HKEY_LOCAL_MACHINE\Software\Microsoft\Command Processor\DelayedExpansion
+
+        及/或
+
+    HKEY_CURRENT_USER\Software\Microsoft\Command Processor\DelayedExpansion
+
+其值可為 0x1 或 0x0。使用者指定設定的優先順序高於
+電腦設定。命令列參數優先順序高於登錄設定值。
+
+如果已啟用延遲環境變數擴充，驚嘆號字元會在執行時
+被用來取代環境變數值。
+
+預設無法啟用檔案和目錄名稱完成。  您可以為特定的 CMD.EXE 呼叫，以
+ /F:ON 或 /F:OFF 開關啟用或停用檔案名稱完成。 您可以啟用或停用在同
+一部電腦上所有 CMD.EXE 的呼叫完成及/或使用者登入工作階段。方法是使
+用 REGEDT32.EXE 設定其一或兩者登錄中的 REG_DWORD 值:
+
+    HKEY_LOCAL_MACHINE\Software\Microsoft\Command Processor\CompletionChar
+    HKEY_LOCAL_MACHINE\Software\Microsoft\Command Processor\PathCompletionChar
+
+        及/或
+
+    HKEY_CURRENT_USER\Software\Microsoft\Command Processor\CompletionChar
+    HKEY_CURRENT_USER\Software\Microsoft\Command Processor\PathCompletionChar
+
+用於特定功能的控制字元十六進位值 (例如 0x4 是 Ctrl-D ; 0x6 是
+Ctrl-F)。使用者指定設定的執行優先順序高於電腦上的設定。命令列參數
+的執行優先順序高於登錄中的設定值。
+
+如果以 /F:ON 開關啟用完成，則用於目錄名稱完成的控制字元是 Ctrl-D
+而用於檔案名稱完成的控制字元是 Ctrl-F。如果您要停用在登錄中的特定
+完成字元，請使用空間值 (0x20)，因為它不是正確的控制字元。
+
+當您鍵入其中一個控制字元後，完成功能會被啟動。如果路徑字串已存在，
+而且所建立的路徑清單也符合的話，完成函數會讀取到指標所在左方為止
+的路徑字串。然後它會顯示第一個符合的路徑。如果找不到符合的路徑，
+它會發出嗶聲並保留顯示。如果您重覆按相同的控制字元，它將在符合的路
+徑清單中循環執行。如果您同時按下 Shift 鍵與控制字元，可在清單中反
+向移動。如果您進行編輯後再按控制字元的話，已儲存的符合路徑清單會被
+丟棄，並建立新的清單。如果您在檔案及目錄完成功能之間切換，會有同樣
+的情況發生。這兩個控制字元不同之處是:檔案完成字元可同時對應檔案及
+目錄名稱，而目錄完成字元只能對應目錄名稱。如果您將檔案完成功能用在
+內建目錄命令上 (CD，MD 或 RD) 也等於使用了目錄完成功能。
+
+如果您在路徑字串兩端加上引號，完成功能鍵就可正確處理包含空格或其他
+特殊字元的檔案名稱。還有，如果您備份後，又在命令列中呼叫完成功能的
+話，已呼叫過完成功能的指標右方的文字會被丟棄。
+
+要求加上引號的特殊字元有:
+     <space>
+     &()[]{}^=;!'+,`~
